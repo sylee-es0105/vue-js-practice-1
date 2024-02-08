@@ -1,49 +1,51 @@
 <template>
   <h1>구구단</h1>
-  <p>2 ~ 19 숫자 선택</p>
-  <select v-model="targetNumber" @change="changeNumber">
+  몇 단? : 
+  <select v-model="selectedDan">
     <option value="0">==선택==</option>
-    <option v-for="i in 18" :key="i" :value="i+1" v-text="i+1"></option>
+    <option v-for="danNumber in danNumbers" :key="danNumber" :value="danNumber" v-text="danNumber"></option>
   </select>
   <br>
-  <label><input type="checkbox" v-model="searchOption" true-value="num" false-value="str" @change="changeNumber">&nbsp;숫자로 검색</label>
-  <ul v-if="targetNumber >= 2">
-    <li v-for="j in 19">{{ targetNumber }} * {{ j }} = {{ targetNumber * j }}</li>
+  결과 검색 : <input type="number" v-model="keyword">
+  <br>
+  <label><input type="checkbox" v-model="searchOption" true-value="num" false-value="str">&nbsp;숫자로 검색</label>
+  <hr style="margin: 15px 0 10px">
+  <ul v-show="selectedDan != 0">
+    <li v-for="danNumber in danNumbers" :key="danNumber" v-show="isVisible(mul(selectedDan, danNumber))">{{ selectedDan }} * {{ danNumber }} = {{ mul(selectedDan, danNumber) }}</li>
   </ul>
-  <hr>
-  <p>포함되는 숫자 표시</p>
-  <input v-for="num in showNumbers" :key="num" :value="num">
 </template>
 
 <script setup>
  import { ref } from "vue";
 
- const targetNumber = ref(0);
+ const maxDanNumber = 19;
+ const selectedDan = ref(0);
  const searchOption = ref('str');
- const showNumbers = ref([]); 
- 
-function changeNumber() {
-  showNumbers.value = [];
+ const danNumbers = ref(Array.from({length: maxDanNumber}, (_, i) => i + 1));
+ const keyword = ref('');
+  
+function mul(number1, number2) {
+  return number1 * number2;
+}
 
-  if (targetNumber.value == 0) {
-    return;
+function isVisible(mulResult) {
+  if (keyword.value == '') {
+    return true;
   }
 
   if (searchOption.value == 'str') {
-    for (let i = 1; i <= 19; i++ ) {
-      if (i.toString().search(targetNumber.value) != -1) {
-        showNumbers.value.push(i);
-      }
+    if (mulResult.toString().search(keyword.value) != -1) {
+      return true;
     }
-  } else {
-    for (let i = 1; i <= 19; i++) {
-      if (i == targetNumber.value) {
-        showNumbers.value.push(i);
-      }
+  } else if (searchOption.value == 'num') {
+    if (mulResult == keyword.value) {
+      return true;
     }
   }
+
+  return false;
 }
-  
+
 </script>
 
 <style scoped>
